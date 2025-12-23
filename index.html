@@ -1,1491 +1,847 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Underwater Scooter Rental</title>
-    <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(to bottom, #f0f9ff, #ecfeff, #d1fae5);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        /* Header */
-        .hero-header {
-            position: relative;
-            overflow: hidden;
-            padding: 4rem 0;
-            text-align: center;
-            min-height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hero-bg {
-            position: absolute;
-            inset: 0;
-            /* OPTION 1: Use your own image - upload to /images/hero-background.jpg */
-            background-image: url('./images/hero-background.jpg');
-            /* OPTION 2: Use a placeholder image from Unsplash (underwater scene) */
-            /* background-image: url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=80'); */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        
-        /* Dark overlay so text is readable */
-        .hero-bg::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(8, 145, 178, 0.85), rgba(20, 184, 166, 0.75));
-            /* Adjust opacity: 0.85 = darker, 0.5 = lighter */
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .logo-icon {
-            background: linear-gradient(to bottom right, #22d3ee, #14b8a6);
-            padding: 0.75rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-icon svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            color: white;
-        }
-
-        h1 {
-            font-size: 3.75rem;
-            font-weight: 900;
-            color: #ffffff;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-subtitle {
-            font-size: 1.875rem;
-            color: #ffffff;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-description {
-            font-size: 1.125rem;
-            color: #f0fdfa;
-            max-width: 42rem;
-            margin: 0 auto 2rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Main Content */
-        .main-content {
-            padding: 3rem 0;
-        }
-
-        .two-column-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 3rem;
-        }
-
-        @media (min-width: 1024px) {
-            .two-column-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        /* Booking Card */
-        .booking-card {
-            background: white;
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 2px solid #a5f3fc;
-        }
-
-        /* Step Indicator */
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-        }
-
-        .step-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-        }
-
-        .step-circle {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.125rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .step-circle.active {
-            background: linear-gradient(to bottom right, #22d3ee, #14b8a6);
-            color: white;
-        }
-
-        .step-circle.completed {
-            background: #10b981;
-            color: white;
-        }
-
-        .step-circle.inactive {
-            background: #e2e8f0;
-            color: #94a3b8;
-        }
-
-        .step-label {
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-top: 0.5rem;
-            font-weight: 500;
-        }
-
-        .step-line {
-            flex: 1;
-            height: 0.25rem;
-            background: #e2e8f0;
-            border-radius: 0.125rem;
-        }
-
-        /* Scooter Examples */
-        .scooter-examples {
-            margin-bottom: 1.5rem;
-        }
-
-        .scooter-examples h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .scooter-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-        }
-
-        .scooter-item {
-            background: linear-gradient(to bottom right, #cffafe, #ccfbf1);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            text-align: center;
-            border: 2px solid #67e8f9;
-            overflow: hidden;
-        }
-
-        .scooter-item img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .scooter-item svg {
-            width: 4rem;
-            height: 4rem;
-            color: #0891b2;
-            margin: 0 auto 0.5rem;
-        }
-
-        .scooter-item p {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #334155;
-        }
-
-        /* Video Section */
-        .video-section {
-            margin-bottom: 2rem;
-        }
-
-        .video-placeholder {
-            background: linear-gradient(to bottom right, #1e293b, #0f172a);
-            border-radius: 0.75rem;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-center;
-            border: 2px solid #22d3ee;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .video-placeholder iframe {
-            width: 100%;
-            height: 300px;
-            border: none;
-            border-radius: 0.75rem;
-        }
-
-        .video-content {
-            text-align: center;
-        }
-
-        .play-button {
-            width: 5rem;
-            height: 5rem;
-            background: linear-gradient(to bottom right, #22d3ee, #14b8a6);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .play-button svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            color: white;
-            margin-left: 0.25rem;
-        }
-
-        .video-title {
-            color: white;
-            font-weight: 700;
-            font-size: 1.125rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .video-subtitle {
-            color: #67e8f9;
-            font-size: 0.875rem;
-        }
-
-        /* Divider */
-        .divider {
-            border-top: 2px solid #a5f3fc;
-            margin: 2rem 0;
-        }
-
-        /* Section Header */
-        .section-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .section-header h2 {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-header p {
-            color: #475569;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: #0891b2;
-            margin-bottom: 0.75rem;
-        }
-
-        .form-label svg {
-            width: 1.25rem;
-            height: 1.25rem;
-        }
-
-        .form-input,
-        .form-select {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            background: #f0f9ff;
-            border: 2px solid #a5f3fc;
-            border-radius: 0.75rem;
-            color: #334155;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        .form-input:focus,
-        .form-select:focus {
-            outline: none;
-            border-color: #22d3ee;
-            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
-        }
-
-        /* Rental Packages */
-        .rental-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-
-        .rental-option {
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border: 2px solid #e2e8f0;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .rental-option:hover {
-            border-color: #67e8f9;
-        }
-
-        .rental-option.selected {
-            background: linear-gradient(to bottom right, #22d3ee, #14b8a6);
-            color: white;
-            border-color: #0891b2;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .rental-option-label {
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .rental-option-hours {
-            font-size: 1.125rem;
-            font-weight: 700;
-        }
-
-        .rental-option-price {
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-        }
-
-        /* Price Summary */
-        .price-summary {
-            background: linear-gradient(to bottom right, #ecfeff, #e0f2fe);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            border: 2px solid #a5f3fc;
-            margin-bottom: 1.5rem;
-        }
-
-        .price-summary-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .price-summary-label {
-            color: #334155;
-            font-weight: 600;
-        }
-
-        .price-summary-amount {
-            font-size: 2.25rem;
-            font-weight: 900;
-            background: linear-gradient(to right, #0891b2, #14b8a6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .price-summary-note {
-            font-size: 0.75rem;
-            color: #475569;
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 1.25rem 2rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 1.125rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(to right, #06b6d4, #14b8a6);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(to right, #0891b2, #0d9488);
-        }
-
-        .btn-primary:disabled {
-            background: linear-gradient(to right, #cbd5e1, #94a3b8);
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #334155;
-            border: 2px solid #cbd5e1;
-        }
-
-        .btn-secondary:hover {
-            background: #f8fafc;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .button-group .btn {
-            flex: 1;
-        }
-
-        /* Confirmation */
-        .confirmation-icon {
-            width: 5rem;
-            height: 5rem;
-            background: linear-gradient(to bottom right, #34d399, #10b981);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .confirmation-icon svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            color: white;
-        }
-
-        .confirmation-box {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            border: 2px solid #a5f3fc;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            max-width: 28rem;
-            margin: 0 auto 2rem;
-            text-align: left;
-        }
-
-        .confirmation-header {
-            font-weight: 700;
-            color: #0891b2;
-            text-align: center;
-            font-size: 1.125rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .confirmation-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .confirmation-row:last-child {
-            border-bottom: none;
-            padding-top: 1rem;
-            margin-top: 1rem;
-        }
-
-        .confirmation-label {
-            color: #475569;
-        }
-
-        .confirmation-value {
-            color: #1e293b;
-            font-weight: 600;
-        }
-
-        .confirmation-total-label {
-            color: #1e293b;
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        .confirmation-total-amount {
-            font-size: 1.875rem;
-            font-weight: 900;
-            background: linear-gradient(to right, #0891b2, #14b8a6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .confirmation-email {
-            background: linear-gradient(to right, #d1fae5, #ecfeff);
-            border: 2px solid #6ee7b7;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            max-width: 28rem;
-            margin: 0 auto 1.5rem;
-        }
-
-        .confirmation-email p {
-            color: #334155;
-            font-size: 0.875rem;
-        }
-
-        .confirmation-email span {
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        /* Pricing Card */
-        .pricing-card {
-            background: linear-gradient(to bottom right, #22d3ee, #14b8a6);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            color: white;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            margin-bottom: 1.5rem;
-        }
-
-        .pricing-card h3 {
-            font-size: 1.875rem;
-            font-weight: 900;
-            margin-bottom: 0.5rem;
-        }
-
-        .pricing-card .subtitle {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #ecfeff;
-            margin-bottom: 1.5rem;
-        }
-
-        .pricing-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-        }
-
-        .pricing-row:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .pricing-row .price {
-            font-weight: 700;
-            font-size: 1.125rem;
-        }
-
-        /* Info Cards */
-        .info-card {
-            background: white;
-            border-radius: 1.5rem;
-            padding: 2rem;
-            border: 2px solid #a5f3fc;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .info-card h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 1.5rem;
-        }
-
-        .info-item {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .info-icon {
-            background: linear-gradient(to bottom right, #22d3ee, #14b8a6);
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-        }
-
-        .info-icon svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: white;
-        }
-
-        .info-content h4 {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.25rem;
-        }
-
-        .info-content p {
-            font-size: 0.875rem;
-            color: #475569;
-        }
-
-        .location-details {
-            color: #334155;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-
-        .contact-info {
-            font-size: 0.875rem;
-            color: #475569;
-        }
-
-        .contact-info p {
-            margin-bottom: 0.5rem;
-        }
-
-        /* Bottom Section */
-        .bottom-section {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-top: 3rem;
-        }
-
-        @media (min-width: 768px) {
-            .bottom-section {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Footer */
-        .footer {
-            background: white;
-            border-top: 1px solid #a5f3fc;
-            padding: 2rem 0;
-            margin-top: 4rem;
-            text-align: center;
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .footer-logo svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: #06b6d4;
-        }
-
-        .footer-logo span {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .footer-copyright {
-            color: #475569;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-website {
-            color: #64748b;
-            font-size: 0.75rem;
-        }
-
-        /* Hidden utility */
-        .hidden {
-            display: none;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.5rem;
-            }
-
-            .scooter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .rental-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            .two-column-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            /* On mobile, right column content (scooters/video) comes after left column */
-            .two-column-grid > div:nth-child(2) {
-                order: 2;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venue Demographics - 30A Florida</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0D0D0D;
+      color: #FFFFFF;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .navbar {
+      background: #111;
+      padding: 0 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      border-bottom: 1px solid #333;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-brand span {
+      background: #3B82F6;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      color: #aaa;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover {
+      color: white;
+      background: #222;
+    }
+
+    .nav-link.btn-primary {
+      background: #6366F1;
+      color: white;
+    }
+
+    .nav-link.btn-primary:hover {
+      background: #5558E3;
+    }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #10B981;
+    }
+
+    .nav-status .dot {
+      width: 8px;
+      height: 8px;
+      background: #10B981;
+      border-radius: 50%;
+    }
+
+    .nav-status.error {
+      color: #EF4444;
+    }
+
+    .nav-status.error .dot {
+      background: #EF4444;
+    }
+    
+    /* Main Content */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      height: calc(100vh - 60px);
+    }
+    
+    @media (max-width: 900px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+    
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      background: #1a1a1a;
+    }
+    
+    .sidebar {
+      background: #1a1a1a;
+      padding: 20px;
+      overflow-y: auto;
+      border-left: 1px solid #333;
+    }
+    
+    .section {
+      margin-bottom: 24px;
+    }
+    
+    .section h2 {
+      font-size: 13px;
+      color: #6366F1;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .venue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .venue-card {
+      background: #252525;
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    
+    .venue-card:hover {
+      background: #2a2a2a;
+      border-color: #6366F1;
+    }
+    
+    .venue-card.active {
+      border-color: #6366F1;
+      background: #2a2a3a;
+    }
+    
+    .venue-name {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+    
+    .venue-meta {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .category-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .category-bar { background: #7C3AED; }
+    .category-restaurant { background: #F59E0B; }
+    .category-cafe { background: #10B981; }
+    .category-brewery { background: #EF4444; }
+    .category-club { background: #EC4899; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    
+    .stat-card {
+      background: #252525;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #6366F1;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+    
+    .privacy-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #1a2a1a 0%, #1a3a2a 100%);
+      border: 1px solid #10B981;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    
+    .privacy-badge span {
+      color: #10B981;
+      font-size: 24px;
+    }
+
+    .privacy-badge strong {
+      color: #10B981;
+    }
+
+    .privacy-badge small {
+      color: #6EE7B7;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+    }
+    
+    .leaflet-popup-content-wrapper {
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+    }
+    
+    .leaflet-popup-tip {
+      background: #1a1a1a;
+    }
+    
+    .popup-content h3 {
+      margin-bottom: 8px;
+      color: white;
+    }
+    
+    .popup-content p {
+      font-size: 12px;
+      color: #ccc;
+      margin: 4px 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a1a;
+      border-radius: 12px;
+      max-width: 480px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid #333;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: white;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #6366F1;
+    }
+
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #6366F1;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5558E3;
+    }
+
+    .btn-primary:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+
+    .form-note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .form-success {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .form-success .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .form-success h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #10B981;
+    }
+
+    .form-success p {
+      color: #888;
+      font-size: 14px;
+    }
+
+    /* About Content */
+    .about-content h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: white;
+    }
+
+    .about-content p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .about-features {
+      list-style: none;
+      margin: 20px 0;
+    }
+
+    .about-features li {
+      padding: 12px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: #ccc;
+      border-bottom: 1px solid #333;
+    }
+
+    .about-features li:last-child {
+      border-bottom: none;
+    }
+
+    .about-features .icon {
+      font-size: 20px;
+    }
+
+    .about-features strong {
+      display: block;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .about-features small {
+      color: #888;
+      font-size: 13px;
+    }
+  </style>
 </head>
 <body>
-    <!-- Hero Header -->
-    <div class="hero-header">
-        <div class="hero-bg"></div>
-        <div class="container">
-            <div class="hero-content">
-                <div class="logo-wrapper">
-                    <div class="logo-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                    </div>
-                    <h1>Underwater Scooter Rental</h1>
-                </div>
-                <p class="hero-subtitle">Explore the Gulf Coast at Speed</p>
-                <p class="hero-description">
-                    Premium underwater DPVs (Diver Propulsion Vehicles) for unforgettable aquatic exploration
-                </p>
-            </div>
-        </div>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand">
+      🏖️ Venue Demographics
+      <span>30A</span>
+    </a>
+    <div class="nav-links">
+      <div id="apiStatus" class="nav-status">
+        <div class="dot"></div>
+        <span>Connecting...</span>
+      </div>
+      <a href="#" class="nav-link" onclick="openModal('aboutModal')">About</a>
+      <a href="#" class="nav-link btn-primary" onclick="openModal('signupModal')">Sign Up</a>
     </div>
+  </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <div class="two-column-grid">
-                
-                <!-- LEFT: Booking Interface -->
-                <div>
-                    <div class="booking-card">
-                        
-                        <!-- Step Indicator -->
-                        <div class="step-indicator">
-                            <div class="step-wrapper">
-                                <div class="step-circle" id="step1-circle">1</div>
-                                <span class="step-label">Details</span>
-                            </div>
-                            <div class="step-line"></div>
-                            <div class="step-wrapper">
-                                <div class="step-circle inactive" id="step2-circle">2</div>
-                                <span class="step-label">Payment</span>
-                            </div>
-                            <div class="step-line"></div>
-                            <div class="step-wrapper">
-                                <div class="step-circle inactive" id="step3-circle">3</div>
-                                <span class="step-label">Confirm</span>
-                            </div>
-                        </div>
-
-                        <!-- STEP 1: Booking -->
-                        <div id="step-booking">
-                            <div class="section-header">
-                                <h2>Plan Your Adventure</h2>
-                                <p>Select your preferred date, time, and equipment</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
-                                    </svg>
-                                    CHOOSE DATE
-                                </label>
-                                <input type="date" class="form-input" id="selected-date">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    START TIME
-                                </label>
-                                <select class="form-select" id="selected-time">
-                                    <option value="">Select your time slot</option>
-                                    <option value="8:00 AM">8:00 AM - Early Bird</option>
-                                    <option value="10:00 AM">10:00 AM - Morning</option>
-                                    <option value="12:00 PM">12:00 PM - Midday</option>
-                                    <option value="2:00 PM">2:00 PM - Afternoon</option>
-                                    <option value="4:00 PM">4:00 PM - Sunset</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                                    </svg>
-                                    RENTAL PACKAGE
-                                </label>
-                                <div class="rental-grid">
-                                    <div class="rental-option" onclick="selectRental('2-hour', this)">
-                                        <div class="rental-option-label">Quick</div>
-                                        <div class="rental-option-hours">2 hrs</div>
-                                        <div class="rental-option-price">$80</div>
-                                    </div>
-                                    <div class="rental-option selected" onclick="selectRental('half-day', this)">
-                                        <div class="rental-option-label">Half Day</div>
-                                        <div class="rental-option-hours">4 hrs</div>
-                                        <div class="rental-option-price">$120</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
-                                    </svg>
-                                    NUMBER OF SCOOTERS
-                                </label>
-                                <select class="form-select" id="num-scooters">
-                                    <option value="1">1 Scooter</option>
-                                    <option value="2">2 Scooters</option>
-                                    <option value="3">3 Scooters</option>
-                                </select>
-                            </div>
-
-                            <div class="price-summary">
-                                <div class="price-summary-content">
-                                    <span class="price-summary-label">Estimated Total</span>
-                                    <span class="price-summary-amount" id="total-price">$120</span>
-                                </div>
-                                <p class="price-summary-note">Includes all equipment, safety gear, and orientation</p>
-                            </div>
-
-                            <button class="btn btn-primary" onclick="goToPayment()">Continue to Payment</button>
-                        </div>
-
-                        <!-- STEP 2: Payment -->
-                        <div id="step-payment" class="hidden">
-                            <div class="section-header">
-                                <h2>Payment Details</h2>
-                                <p>Secure checkout for your adventure</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">FULL NAME</label>
-                                <input type="text" class="form-input" id="customer-name" placeholder="John Doe">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">EMAIL ADDRESS</label>
-                                <input type="email" class="form-input" id="customer-email" placeholder="john@example.com">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">PHONE NUMBER</label>
-                                <input type="tel" class="form-input" id="customer-phone" placeholder="(555) 123-4567">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
-                                    </svg>
-                                    CARD NUMBER
-                                </label>
-                                <input type="text" class="form-input" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
-                            </div>
-
-                            <div class="form-group">
-                                <div class="rental-grid">
-                                    <div>
-                                        <label class="form-label">EXPIRY</label>
-                                        <input type="text" class="form-input" id="card-expiry" placeholder="MM/YY" maxlength="5">
-                                    </div>
-                                    <div>
-                                        <label class="form-label">CVV</label>
-                                        <input type="text" class="form-input" id="card-cvv" placeholder="123" maxlength="4">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="price-summary">
-                                <div class="price-summary-content">
-                                    <span class="price-summary-label">Total Amount</span>
-                                    <span class="price-summary-amount" id="payment-total">$120</span>
-                                </div>
-                                <p class="price-summary-note">Payment processed securely via Stripe</p>
-                            </div>
-
-                            <div class="button-group">
-                                <button class="btn btn-secondary" onclick="goToBooking()">Back</button>
-                                <button class="btn btn-primary" onclick="goToConfirmation()">Complete Booking</button>
-                            </div>
-                        </div>
-
-                        <!-- STEP 3: Confirmation -->
-                        <div id="step-confirmation" class="hidden">
-                            <div style="text-align: center;">
-                                <div class="confirmation-icon">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                                    </svg>
-                                </div>
-                                <div class="section-header">
-                                    <h2>Booking Confirmed!</h2>
-                                    <p style="font-size: 1.125rem;">Your underwater adventure awaits</p>
-                                </div>
-
-                                <div class="confirmation-box">
-                                    <h3 class="confirmation-header">BOOKING CONFIRMATION</h3>
-                                    <div class="confirmation-row">
-                                        <span class="confirmation-label">Confirmation #</span>
-                                        <span class="confirmation-value" id="conf-number">SS-0000</span>
-                                    </div>
-                                    <div class="confirmation-row">
-                                        <span class="confirmation-label">Date</span>
-                                        <span class="confirmation-value" id="conf-date">-</span>
-                                    </div>
-                                    <div class="confirmation-row">
-                                        <span class="confirmation-label">Time</span>
-                                        <span class="confirmation-value" id="conf-time">-</span>
-                                    </div>
-                                    <div class="confirmation-row">
-                                        <span class="confirmation-label">Package</span>
-                                        <span class="confirmation-value" id="conf-package">-</span>
-                                    </div>
-                                    <div class="confirmation-row">
-                                        <span class="confirmation-label">Units</span>
-                                        <span class="confirmation-value" id="conf-units">-</span>
-                                    </div>
-                                    <div class="confirmation-row">
-                                        <span class="confirmation-total-label">PAID</span>
-                                        <span class="confirmation-total-amount" id="conf-total">$0</span>
-                                    </div>
-                                </div>
-
-                                <div class="confirmation-email">
-                                    <p>📧 Confirmation sent to<br>
-                                    <span id="conf-email">-</span></p>
-                                </div>
-
-                                <button class="btn btn-primary" onclick="resetBooking()">Book Another Experience</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RIGHT: Pricing Card -->
-                <div>
-                    <div class="pricing-card">
-                        <h3>Starting at $120</h3>
-                        <p class="subtitle">for half-day rental</p>
-                        <div class="pricing-row">
-                            <span>Quick Dive (2 hours)</span>
-                            <span class="price">$80</span>
-                        </div>
-                        <div class="pricing-row">
-                            <span>Half Day (4 hours)</span>
-                            <span class="price">$120</span>
-                        </div>
-                    </div>
-
-                    <!-- Scooter Examples -->
-                    <div class="info-card" style="margin-top: 1.5rem;">
-                        <h3>Our Scooters</h3>
-                        <div class="scooter-grid">
-                            <div class="scooter-item">
-                                <!-- OPTION 1: Use image from GitHub /images folder -->
-                                <img src="./images/scooter1.jpg" alt="Speed Model Scooter" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <!-- Fallback SVG if image doesn't load -->
-                                <svg style="display:none;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                </svg>
-                                <p>Speed Model</p>
-                            </div>
-                            <div class="scooter-item">
-                                <!-- OPTION 1: Use image from GitHub /images folder -->
-                                <img src="./images/scooter2.jpg" alt="Cruise Model Scooter" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <!-- Fallback SVG if image doesn't load -->
-                                <svg style="display:none;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                                </svg>
-                                <p>Cruise Model</p>
-                            </div>
-                            <div class="scooter-item">
-                                <!-- OPTION 1: Use image from GitHub /images folder -->
-                                <img src="./images/scooter3.jpg" alt="Family Model Scooter" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <!-- Fallback SVG if image doesn't load -->
-                                <svg style="display:none;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
-                                </svg>
-                                <p>Family Model</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Video Section -->
-                    <div style="margin-top: 1.5rem;">
-                        <div class="video-placeholder">
-                            <!-- OPTION 1: YouTube/Vimeo Embed - Replace YOUR_VIDEO_ID with actual ID -->
-                            <!-- Example: If YouTube URL is https://www.youtube.com/watch?v=dQw4w9WgXcQ -->
-                            <!-- Then YOUR_VIDEO_ID is: dQw4w9WgXcQ -->
-                            <iframe 
-                                id="video-iframe"
-                                src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
-                                title="Watch Our Scooters in Action" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen
-                                style="display:none;"
-                                onload="this.style.display='block'; document.getElementById('video-fallback').style.display='none';">
-                            </iframe>
-                            
-                            <!-- Fallback placeholder if video not set -->
-                            <div class="video-content" id="video-fallback">
-                                <div class="play-button">
-                                    <svg fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M8 5v14l11-7z"/>
-                                    </svg>
-                                </div>
-                                <p class="video-title">Watch Our Scooters in Action</p>
-                                <p class="video-subtitle">See how easy and fun underwater exploration can be</p>
-                                <p style="color: #64748b; font-size: 0.75rem; margin-top: 1rem;">
-                                    (Video coming soon - Upload to YouTube and add ID)
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Section: What's Included & Location -->
-            <div class="bottom-section">
-                <!-- What's Included -->
-                <div class="info-card">
-                    <h3>What's Included</h3>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <div class="info-content">
-                            <h4>Professional-Grade Equipment</h4>
-                            <p>Latest underwater propulsion technology</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <div class="info-content">
-                            <h4>Backup Batteries Included</h4>
-                            <p>Extended runtime for longer adventures</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
-                            </svg>
-                        </div>
-                        <div class="info-content">
-                            <h4>Expert Orientation</h4>
-                            <p>15-minute safety briefing & training</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                            </svg>
-                        </div>
-                        <div class="info-content">
-                            <h4>Drop Off & Pick Up Available</h4>
-                            <p>Convenient delivery to your location</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Location -->
-                <div class="info-card">
-                    <h3>Location</h3>
-                    <p class="location-details">Santa Rosa Beach, Florida<br>Emerald Coast - 30A</p>
-                    <div class="contact-info">
-                        <p>📞 (850) 555-SWIM</p>
-                        <p>✉️ rent@swimscooter.com</p>
-                        <p>🌐 www.swimscooter.com</p>
-                    </div>
-                </div>
-            </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div id="map"></div>
+    
+    <div class="sidebar">
+      <div class="section">
+        <div class="privacy-badge">
+          <span>🔒</span>
+          <div>
+            <strong>Privacy Mode Active</strong><br>
+            <small>K-anonymity: 10+ visitors required</small>
+          </div>
         </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-logo">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-                <span>SwimScooter</span>
-            </div>
-            <p class="footer-copyright">&copy; 2025 SwimScooter. All rights reserved.</p>
-            <p class="footer-website">www.swimscooter.com</p>
+      </div>
+      
+      <div class="section">
+        <h2>📊 Stats</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="venueCount">-</div>
+            <div class="stat-label">Venues</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="categoryCount">-</div>
+            <div class="stat-label">Categories</div>
+          </div>
         </div>
-    </footer>
+      </div>
+      
+      <div class="section">
+        <h2>📍 Nearby Venues</h2>
+        <div id="venueList" class="venue-list">
+          <div class="loading">Loading venues...</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // EmailJS Configuration
-        const EMAILJS_PUBLIC_KEY = 'DaAJFlvc6oA6jYuHC';
-        const EMAILJS_SERVICE_ID = 'service_xgqs61r';
-        const EMAILJS_CUSTOMER_TEMPLATE_ID = 'template_plc0zzc';  // Template for customer
-        const EMAILJS_BUSINESS_TEMPLATE_ID = 'template_mhielba';  // Template for business notification
+  <!-- About Modal -->
+  <div id="aboutModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>About Venue Demographics</h2>
+        <button class="modal-close" onclick="closeModal('aboutModal')">&times;</button>
+      </div>
+      <div class="modal-body about-content">
+        <p>Venue Demographics helps you discover the vibe at local bars, restaurants, and cafes — all while protecting everyone's privacy.</p>
         
-        // Validate EmailJS configuration
-        function validateEmailJSConfig() {
-            const missing = [];
-            if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY_HERE') missing.push('Public Key');
-            if (EMAILJS_SERVICE_ID === 'YOUR_SERVICE_ID_HERE') missing.push('Service ID');
-            if (EMAILJS_CUSTOMER_TEMPLATE_ID === 'YOUR_CUSTOMER_TEMPLATE_ID_HERE') missing.push('Customer Template ID');
-            if (EMAILJS_BUSINESS_TEMPLATE_ID === 'YOUR_BUSINESS_TEMPLATE_ID_HERE') missing.push('Business Template ID');
+        <ul class="about-features">
+          <li>
+            <span class="icon">👥</span>
+            <div>
+              <strong>Real-time Crowd Insights</strong>
+              <small>See age ranges and gender distribution at venues near you</small>
+            </div>
+          </li>
+          <li>
+            <span class="icon">🔒</span>
+            <div>
+              <strong>Privacy First</strong>
+              <small>K-anonymity ensures no individual can be identified. Data only shows when 10+ visitors are present.</small>
+            </div>
+          </li>
+          <li>
+            <span class="icon">📍</span>
+            <div>
+              <strong>Polygon Geofencing</strong>
+              <small>Precise venue boundaries — not just a point on a map</small>
+            </div>
+          </li>
+          <li>
+            <span class="icon">✅</span>
+            <div>
+              <strong>GDPR & CCPA Compliant</strong>
+              <small>Built from the ground up with privacy regulations in mind</small>
+            </div>
+          </li>
+        </ul>
+
+        <p style="color: #666; font-size: 13px;">Currently available in the 30A Florida area. More locations coming soon!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Create Account</h2>
+        <button class="modal-close" onclick="closeModal('signupModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="signupForm">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="signupEmail" placeholder="you@example.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Confirm Email</label>
+            <input type="email" id="confirmEmail" placeholder="Confirm your email" required>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Age Range</label>
+              <select id="signupAge" required>
+                <option value="">Select...</option>
+                <option value="18-24">18-24</option>
+                <option value="25-34">25-34</option>
+                <option value="35-44">35-44</option>
+                <option value="45-54">45-54</option>
+                <option value="55-64">55-64</option>
+                <option value="65+">65+</option>
+              </select>
+            </div>
             
-            if (missing.length > 0) {
-                console.error('❌ EmailJS NOT configured! Missing: ' + missing.join(', '));
-                return false;
-            }
-            console.log('✅ EmailJS configuration looks good!');
-            return true;
-        }
+            <div class="form-group">
+              <label>Gender</label>
+              <select id="signupGender" required>
+                <option value="">Select...</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="non-binary">Non-binary</option>
+                <option value="prefer-not">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary" onclick="handleSignup()">Create Account</button>
+          
+          <p class="form-note">Your demographic info helps power anonymous venue insights. We never share individual data.</p>
+        </div>
+
+        <div id="signupSuccess" class="form-success" style="display: none;">
+          <div class="icon">✅</div>
+          <h3>You're all set!</h3>
+          <p>Check your email for a verification link to complete your signup.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const API_BASE = 'https://venue-demographics-api-production.up.railway.app/v1';
+    const CENTER = [30.3205, -86.1435];
+    
+    let map;
+    let markers = [];
+    let venues = [];
+    
+    const categoryColors = {
+      bar: '#7C3AED',
+      restaurant: '#F59E0B',
+      cafe: '#10B981',
+      brewery: '#EF4444',
+      club: '#EC4899'
+    };
+
+    // Modal functions
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOnOverlay(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        event.target.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Signup handler
+    function handleSignup() {
+      const email = document.getElementById('signupEmail').value.trim();
+      const confirmEmail = document.getElementById('confirmEmail').value.trim();
+      const age = document.getElementById('signupAge').value;
+      const gender = document.getElementById('signupGender').value;
+
+      // Validation
+      if (!email || !confirmEmail || !age || !gender) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      if (email !== confirmEmail) {
+        alert('Email addresses do not match');
+        return;
+      }
+
+      if (!email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+
+      // In production, send to backend
+      console.log('Signup:', { email, age, gender });
+
+      // Show success
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('signupSuccess').style.display = 'block';
+    }
+    
+    function initMap() {
+      map = L.map('map').setView(CENTER, 12);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        maxZoom: 19
+      }).addTo(map);
+    }
+    
+    async function checkHealth() {
+      const statusEl = document.getElementById('apiStatus');
+      try {
+        const res = await fetch(API_BASE + '/health');
+        const data = await res.json();
         
-        // Initialize EmailJS
-        (function() {
-            emailjs.init(EMAILJS_PUBLIC_KEY);
-            validateEmailJSConfig();
-        })();
-
-        // State management
-        let currentStep = 'booking';
-        let selectedRental = 'half-day';
-        let formData = {
-            date: '',
-            time: '',
-            scooters: 1,
-            name: '',
-            email: '',
-            phone: '',
-            cardNumber: '',
-            expiry: '',
-            cvv: ''
-        };
-
-        // Price calculation
-        function calculatePrice() {
-            const prices = {
-                '2-hour': 80,
-                'half-day': 120
-            };
-            const basePrice = prices[selectedRental] || 120;
-            const numScooters = parseInt(document.getElementById('num-scooters').value) || 1;
-            return basePrice * numScooters;
+        if (data.status === 'healthy') {
+          statusEl.innerHTML = '<div class="dot"></div><span>Connected</span>';
+          statusEl.classList.remove('error');
+          return true;
         }
-
-        function updatePrice() {
-            const total = calculatePrice();
-            document.getElementById('total-price').textContent = '$' + total;
-            document.getElementById('payment-total').textContent = '$' + total;
+      } catch (err) {
+        console.error(err);
+      }
+      statusEl.innerHTML = '<div class="dot"></div><span>Offline</span>';
+      statusEl.classList.add('error');
+      return false;
+    }
+    
+    async function loadVenues() {
+      try {
+        const url = API_BASE + '/venues/nearby?lat=' + CENTER[0] + '&lng=' + CENTER[1] + '&radius=10000';
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.success && data.data && data.data.venues) {
+          venues = data.data.venues;
+          displayVenues(venues);
+          
+          document.getElementById('venueCount').textContent = venues.length;
+          const categories = [...new Set(venues.map(v => v.category))];
+          document.getElementById('categoryCount').textContent = categories.length;
+        } else {
+          document.getElementById('venueList').innerHTML = 
+            '<div class="empty-state"><p>No venues found</p></div>';
         }
+      } catch (err) {
+        document.getElementById('venueList').innerHTML = 
+          '<div class="empty-state"><p>Failed to load venues</p></div>';
+      }
+    }
+    
+    function displayVenues(venueList) {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+      
+      venueList.forEach((venue, index) => {
+        const color = categoryColors[venue.category] || '#6366F1';
+        
+        const icon = L.divIcon({
+          className: 'custom-marker',
+          html: '<div style="background:' + color + ';width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+        
+        const marker = L.marker([venue.latitude, venue.longitude], { icon: icon })
+          .addTo(map)
+          .bindPopup(
+            '<div class="popup-content">' +
+            '<h3>' + venue.name + '</h3>' +
+            '<p><strong>Category:</strong> ' + venue.category + '</p>' +
+            '<p><strong>Address:</strong> ' + (venue.address || 'N/A') + '</p>' +
+            '</div>'
+          );
+        
+        marker.on('click', () => selectVenue(index));
+        markers.push(marker);
+      });
+      
+      if (venueList.length === 0) {
+        document.getElementById('venueList').innerHTML = 
+          '<div class="empty-state"><p>No venues found</p></div>';
+        return;
+      }
 
-        // Rental selection
-        function selectRental(type, element) {
-            selectedRental = type;
-            // Remove selected class from all options
-            const options = document.querySelectorAll('.rental-option');
-            options.forEach(opt => opt.classList.remove('selected'));
-            // Add selected class to clicked option
-            element.classList.add('selected');
-            updatePrice();
-        }
+      let listHtml = '';
+      venueList.forEach((venue, index) => {
+        const distanceKm = (venue.distance / 1000).toFixed(1);
+        listHtml += `
+          <div class="venue-card" onclick="selectVenue(${index})" id="venue-${index}">
+            <div class="venue-name">${venue.name}</div>
+            <div class="venue-meta">
+              <span class="category-badge category-${venue.category}">${venue.category}</span>
+              <span>${distanceKm} km away</span>
+            </div>
+          </div>
+        `;
+      });
+      
+      document.getElementById('venueList').innerHTML = listHtml;
+      
+      if (markers.length > 0) {
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+    }
+    
+    function selectVenue(index) {
+      document.querySelectorAll('.venue-card').forEach(card => card.classList.remove('active'));
+      document.getElementById('venue-' + index).classList.add('active');
+      
+      const venue = venues[index];
+      map.setView([venue.latitude, venue.longitude], 15);
+      markers[index].openPopup();
+    }
+    
+    window.selectVenue = selectVenue;
 
-        // Update price when scooter count changes
-        document.getElementById('num-scooters').addEventListener('change', updatePrice);
-
-        // Navigation functions
-        function goToPayment() {
-            const date = document.getElementById('selected-date').value;
-            const time = document.getElementById('selected-time').value;
-            
-            if (!date || !time) {
-                alert('Please select a date and time');
-                return;
-            }
-
-            formData.date = date;
-            formData.time = time;
-            formData.scooters = document.getElementById('num-scooters').value;
-
-            // Hide booking, show payment
-            document.getElementById('step-booking').classList.add('hidden');
-            document.getElementById('step-payment').classList.remove('hidden');
-
-            // Update step indicators
-            document.getElementById('step1-circle').classList.remove('active');
-            document.getElementById('step1-circle').classList.add('completed');
-            document.getElementById('step1-circle').innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
-            
-            document.getElementById('step2-circle').classList.remove('inactive');
-            document.getElementById('step2-circle').classList.add('active');
-
-            currentStep = 'payment';
-        }
-
-        function goToBooking() {
-            // Show booking, hide payment
-            document.getElementById('step-booking').classList.remove('hidden');
-            document.getElementById('step-payment').classList.add('hidden');
-
-            // Update step indicators
-            document.getElementById('step1-circle').classList.remove('completed');
-            document.getElementById('step1-circle').classList.add('active');
-            document.getElementById('step1-circle').textContent = '1';
-            
-            document.getElementById('step2-circle').classList.remove('active');
-            document.getElementById('step2-circle').classList.add('inactive');
-
-            currentStep = 'booking';
-        }
-
-        function goToConfirmation() {
-            const name = document.getElementById('customer-name').value;
-            const email = document.getElementById('customer-email').value;
-            const phone = document.getElementById('customer-phone').value;
-            const cardNumber = document.getElementById('card-number').value;
-
-            if (!name || !email || !phone || !cardNumber) {
-                alert('Please fill in all payment details');
-                return;
-            }
-
-            // Check if EmailJS is configured
-            if (!validateEmailJSConfig()) {
-                alert('⚠️ EMAIL NOT CONFIGURED!\n\nThe website owner needs to set up EmailJS credentials.\n\nYour booking details:\nName: ' + name + '\nEmail: ' + email + '\nPhone: ' + phone + '\n\nPlease contact rent@swimscooter.com to complete your booking.');
-                return;
-            }
-
-            formData.name = name;
-            formData.email = email;
-            formData.phone = phone;
-            formData.cardNumber = cardNumber;
-
-            // Generate confirmation number
-            const confirmationNumber = 'SS-' + Math.floor(Math.random() * 10000);
-            const packageName = selectedRental === '2-hour' ? 'Quick Dive' : 'Half Day';
-            const totalPrice = calculatePrice();
-
-            // Show loading state
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = 'Sending confirmation...';
-            button.disabled = true;
-
-            // Template parameters for CUSTOMER email
-            const customerParams = {
-                to_email: email,
-                to_name: name,
-                customer_name: name,
-                confirmation_number: confirmationNumber,
-                booking_date: formData.date,
-                booking_time: formData.time,
-                package_type: packageName,
-                num_scooters: formData.scooters,
-                total_price: totalPrice,
-                customer_phone: phone,
-                customer_email: email
-            };
-
-            // Template parameters for BUSINESS notification email
-            const businessParams = {
-                customer_name: name,
-                customer_email: email,
-                customer_phone: phone,
-                confirmation_number: confirmationNumber,
-                booking_date: formData.date,
-                booking_time: formData.time,
-                package_type: packageName,
-                num_scooters: formData.scooters,
-                total_price: totalPrice,
-                card_last_four: cardNumber.slice(-4)  // Last 4 digits of card for reference
-            };
-
-            console.log('📧 Attempting to send emails...');
-            console.log('Customer email:', email);
-            console.log('Service ID:', EMAILJS_SERVICE_ID);
-            console.log('Customer Template ID:', EMAILJS_CUSTOMER_TEMPLATE_ID);
-            console.log('Business Template ID:', EMAILJS_BUSINESS_TEMPLATE_ID);
-
-            // Send BOTH emails using Promise.all
-            Promise.all([
-                // Email to customer
-                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE_ID, customerParams),
-                // Email to business
-                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_BUSINESS_TEMPLATE_ID, businessParams)
-            ])
-                .then(function(responses) {
-                    console.log('✅ Both emails sent successfully!', responses);
-                    
-                    // Hide payment, show confirmation
-                    document.getElementById('step-payment').classList.add('hidden');
-                    document.getElementById('step-confirmation').classList.remove('hidden');
-
-                    // Update step indicators
-                    document.getElementById('step2-circle').classList.remove('active');
-                    document.getElementById('step2-circle').classList.add('completed');
-                    document.getElementById('step2-circle').innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
-                    
-                    document.getElementById('step3-circle').classList.remove('inactive');
-                    document.getElementById('step3-circle').classList.add('active');
-
-                    // Populate confirmation details
-                    document.getElementById('conf-number').textContent = confirmationNumber;
-                    document.getElementById('conf-date').textContent = formData.date;
-                    document.getElementById('conf-time').textContent = formData.time;
-                    document.getElementById('conf-package').textContent = packageName;
-                    document.getElementById('conf-units').textContent = formData.scooters;
-                    document.getElementById('conf-total').textContent = '$' + totalPrice;
-                    document.getElementById('conf-email').textContent = formData.email;
-
-                    currentStep = 'confirmation';
-                }, function(error) {
-                    console.error('❌ Email send failed:', error);
-                    console.error('Error details:', JSON.stringify(error, null, 2));
-                    
-                    let errorMsg = 'Unknown error';
-                    if (error.text) {
-                        errorMsg = error.text;
-                    } else if (error.message) {
-                        errorMsg = error.message;
-                    }
-                    
-                    alert('⚠️ Email Error: ' + errorMsg + '\n\nBooking details saved:\nConfirmation #: ' + confirmationNumber + '\n\nPlease contact rent@swimscooter.com\n\nTip: Check browser console (F12) for details.');
-                    
-                    // Still show confirmation even if email fails
-                    button.textContent = originalText;
-                    button.disabled = false;
-                    
-                    // Continue to show confirmation page
-                    document.getElementById('step-payment').classList.add('hidden');
-                    document.getElementById('step-confirmation').classList.remove('hidden');
-                    document.getElementById('step2-circle').classList.remove('active');
-                    document.getElementById('step2-circle').classList.add('completed');
-                    document.getElementById('step2-circle').innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
-                    document.getElementById('step3-circle').classList.remove('inactive');
-                    document.getElementById('step3-circle').classList.add('active');
-                    document.getElementById('conf-number').textContent = confirmationNumber;
-                    document.getElementById('conf-date').textContent = formData.date;
-                    document.getElementById('conf-time').textContent = formData.time;
-                    document.getElementById('conf-package').textContent = packageName;
-                    document.getElementById('conf-units').textContent = formData.scooters;
-                    document.getElementById('conf-total').textContent = '$' + totalPrice;
-                    document.getElementById('conf-email').textContent = formData.email;
-                    currentStep = 'confirmation';
-                });
-        }
-
-        function resetBooking() {
-            // Reset form
-            document.getElementById('selected-date').value = '';
-            document.getElementById('selected-time').value = '';
-            document.getElementById('num-scooters').value = '1';
-            document.getElementById('customer-name').value = '';
-            document.getElementById('customer-email').value = '';
-            document.getElementById('customer-phone').value = '';
-            document.getElementById('card-number').value = '';
-            document.getElementById('card-expiry').value = '';
-            document.getElementById('card-cvv').value = '';
-
-            // Reset rental selection
-            selectedRental = 'half-day';
-            const options = document.querySelectorAll('.rental-option');
-            options.forEach((opt, index) => {
-                if (index === 1) {
-                    opt.classList.add('selected');
-                } else {
-                    opt.classList.remove('selected');
-                }
-            });
-
-            // Show booking step
-            document.getElementById('step-confirmation').classList.add('hidden');
-            document.getElementById('step-booking').classList.remove('hidden');
-
-            // Reset step indicators
-            document.getElementById('step1-circle').classList.remove('completed');
-            document.getElementById('step1-circle').classList.add('active');
-            document.getElementById('step1-circle').textContent = '1';
-            
-            document.getElementById('step2-circle').classList.remove('completed');
-            document.getElementById('step2-circle').classList.add('inactive');
-            document.getElementById('step2-circle').textContent = '2';
-            
-            document.getElementById('step3-circle').classList.remove('active');
-            document.getElementById('step3-circle').classList.add('inactive');
-
-            currentStep = 'booking';
-            updatePrice();
-        }
-
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('selected-date').setAttribute('min', today);
-
-        // Initialize price
-        updatePrice();
-    </script>
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+          modal.classList.remove('active');
+        });
+        document.body.style.overflow = '';
+      }
+    });
+    
+    window.onload = function() {
+      initMap();
+      checkHealth().then(() => loadVenues());
+    };
+  </script>
 </body>
 </html>
