@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venue Admin - Draw Boundaries</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0D0D0D;
+      color: #FFFFFF;
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+    
+    .header h1 {
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .header-badge {
+      background: #F59E0B;
+      color: black;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      height: calc(100vh - 60px);
+    }
+    
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .sidebar {
+      background: #1a1a1a;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 1px solid #333;
+    }
+    
+    .section {
+      margin-bottom: 24px;
+    }
+    
+    .section h2 {
+      font-size: 14px;
+      color: #6366F1;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #6366F1;
+    }
+    
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    
+    .btn-primary {
+      background: #6366F1;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5558E3;
+    }
+    
+    .btn-primary:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: #333;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #444;
+    }
+    
+    .btn-danger {
+      background: #EF4444;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #DC2626;
+    }
+    
+    .status-box {
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    
+    .status-info {
+      background: #1e3a5f;
+      border: 1px solid #3B82F6;
+      color: #93C5FD;
+    }
+    
+    .status-success {
+      background: #14532d;
+      border: 1px solid #10B981;
+      color: #6EE7B7;
+    }
+    
+    .status-warning {
+      background: #713f12;
+      border: 1px solid #F59E0B;
+      color: #FCD34D;
+    }
+    
+    .status-error {
+      background: #7f1d1d;
+      border: 1px solid #EF4444;
+      color: #FCA5A5;
+    }
+    
+    .venue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .venue-item {
+      background: #252525;
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .venue-item:hover {
+      border-color: #6366F1;
+    }
+    
+    .venue-item.has-boundary {
+      border-left: 3px solid #10B981;
+    }
+    
+    .venue-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    
+    .venue-item-meta {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .boundary-preview {
+      background: #252525;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #888;
+      max-height: 100px;
+      overflow-y: auto;
+      word-break: break-all;
+    }
+    
+    .instructions {
+      background: #252525;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .instructions ol {
+      margin-left: 16px;
+    }
+    
+    .instructions li {
+      margin-bottom: 6px;
+    }
+    
+    .leaflet-draw-toolbar a {
+      background-color: #1a1a1a;
+    }
+    
+    .coordinate-display {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.8);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 1000;
+      color: #10B981;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🗺️ Venue Admin <span class="header-badge">BOUNDARY EDITOR</span></h1>
+  </div>
+  
+  <div class="container">
+    <div class="sidebar">
+      <div class="section">
+        <h2>📍 Instructions</h2>
+        <div class="instructions">
+          <ol>
+            <li>Select a venue or create new</li>
+            <li>Use the <strong>polygon tool</strong> (pentagon icon) on the map</li>
+            <li>Click to add points around the venue</li>
+            <li>Click first point to close shape</li>
+            <li>Click <strong>Save Boundary</strong></li>
+          </ol>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2>🏢 Venue Details</h2>
+        <div id="statusBox" class="status-box status-info">
+          Select a venue or draw a new boundary
+        </div>
+        
+        <div class="form-group">
+          <label>Venue Name</label>
+          <input type="text" id="venueName" placeholder="e.g., The Red Bar">
+        </div>
+        
+        <div class="form-group">
+          <label>Category</label>
+          <select id="venueCategory">
+            <option value="bar">Bar</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="cafe">Cafe</option>
+            <option value="brewery">Brewery</option>
+            <option value="club">Club</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="venueAddress" placeholder="e.g., 70 Hotz Ave, Grayton Beach, FL">
+        </div>
+        
+        <button id="saveBtn" class="btn btn-primary" disabled>Save Boundary</button>
+        <button id="clearBtn" class="btn btn-secondary">Clear Drawing</button>
+      </div>
+      
+      <div class="section">
+        <h2>📋 Boundary Data</h2>
+        <div id="boundaryPreview" class="boundary-preview">
+          No boundary drawn yet
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2>🏪 Existing Venues</h2>
+        <div id="venueList" class="venue-list">
+          Loading...
+        </div>
+      </div>
+    </div>
+    
+    <div style="position: relative;">
+      <div id="map"></div>
+      <div id="coordDisplay" class="coordinate-display">
+        Move mouse over map
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script>
+    const API_BASE = 'https://venue-demographics-api-production.up.railway.app/v1';
+    
+    // 30A Florida center
+    const CENTER = [30.3205, -86.1435];
+    
+    // Global state
+    let map;
+    let drawnItems;
+    let currentPolygon = null;
+    let currentBoundary = null;
+    let venues = [];
+    let selectedVenueId = null;
+    
+    // Initialize map
+    function initMap() {
+      map = L.map('map').setView(CENTER, 14);
+      
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        maxZoom: 19
+      }).addTo(map);
+      
+      // Layer for drawn shapes
+      drawnItems = new L.FeatureGroup();
+      map.addLayer(drawnItems);
+      
+      // Drawing controls
+      const drawControl = new L.Control.Draw({
+        position: 'topright',
+        draw: {
+          polygon: {
+            allowIntersection: false,
+            shapeOptions: {
+              color: '#6366F1',
+              fillColor: '#6366F1',
+              fillOpacity: 0.3,
+              weight: 3
+            }
+          },
+          rectangle: {
+            shapeOptions: {
+              color: '#6366F1',
+              fillColor: '#6366F1',
+              fillOpacity: 0.3,
+              weight: 3
+            }
+          },
+          circle: false,
+          circlemarker: false,
+          marker: false,
+          polyline: false
+        },
+        edit: {
+          featureGroup: drawnItems,
+          remove: true
+        }
+      });
+      map.addControl(drawControl);
+      
+      // Handle drawn shapes
+      map.on('draw:created', function(e) {
+        drawnItems.clearLayers();
+        currentPolygon = e.layer;
+        drawnItems.addLayer(currentPolygon);
+        
+        // Get coordinates
+        const latlngs = currentPolygon.getLatLngs()[0];
+        currentBoundary = {
+          type: 'Polygon',
+          coordinates: latlngs.map(ll => [ll.lng, ll.lat])
+        };
+        // Close the polygon
+        currentBoundary.coordinates.push(currentBoundary.coordinates[0]);
+        
+        updateBoundaryPreview();
+        updateStatus('Boundary drawn! Fill in details and save.', 'success');
+        document.getElementById('saveBtn').disabled = false;
+      });
+      
+      map.on('draw:deleted', function(e) {
+        currentPolygon = null;
+        currentBoundary = null;
+        updateBoundaryPreview();
+        document.getElementById('saveBtn').disabled = true;
+        updateStatus('Boundary cleared', 'info');
+      });
+      
+      // Show coordinates on mouse move
+      map.on('mousemove', function(e) {
+        document.getElementById('coordDisplay').textContent = 
+          `Lat: ${e.latlng.lat.toFixed(6)}, Lng: ${e.latlng.lng.toFixed(6)}`;
+      });
+    }
+    
+    // Update boundary preview
+    function updateBoundaryPreview() {
+      const preview = document.getElementById('boundaryPreview');
+      if (currentBoundary) {
+        preview.textContent = JSON.stringify(currentBoundary, null, 2);
+      } else {
+        preview.textContent = 'No boundary drawn yet';
+      }
+    }
+    
+    // Update status message
+    function updateStatus(message, type) {
+      const box = document.getElementById('statusBox');
+      box.textContent = message;
+      box.className = 'status-box status-' + type;
+    }
+    
+    // Load existing venues
+    async function loadVenues() {
+      try {
+        const res = await fetch(API_BASE + '/venues/nearby?lat=' + CENTER[0] + '&lng=' + CENTER[1] + '&radius=10000');
+        const data = await res.json();
+        
+        if (data.success && data.data && data.data.venues) {
+          venues = data.data.venues;
+          renderVenueList();
+          
+          // Add markers for existing venues
+          venues.forEach(venue => {
+            const marker = L.circleMarker([venue.latitude, venue.longitude], {
+              radius: 8,
+              fillColor: '#F59E0B',
+              color: '#fff',
+              weight: 2,
+              fillOpacity: 0.8
+            }).addTo(map);
+            
+            marker.bindPopup('<strong>' + venue.name + '</strong><br>' + venue.category);
+            
+            marker.on('click', function() {
+              selectVenue(venue);
+            });
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load venues:', err);
+        document.getElementById('venueList').innerHTML = '<div style="color:#888">Failed to load venues</div>';
+      }
+    }
+    
+    // Render venue list
+    function renderVenueList() {
+      const list = document.getElementById('venueList');
+      
+      if (venues.length === 0) {
+        list.innerHTML = '<div style="color:#888">No venues found</div>';
+        return;
+      }
+      
+      list.innerHTML = venues.map(v => {
+        const hasBoundary = v.boundary ? 'has-boundary' : '';
+        return '<div class="venue-item ' + hasBoundary + '" onclick="selectVenue(\'' + v.id + '\')">' +
+          '<div class="venue-item-name">' + v.name + '</div>' +
+          '<div class="venue-item-meta">' + v.category + (v.boundary ? ' ✓ Has boundary' : '') + '</div>' +
+          '</div>';
+      }).join('');
+    }
+    
+    // Select a venue
+    function selectVenue(venueOrId) {
+      const venue = typeof venueOrId === 'string' 
+        ? venues.find(v => v.id === venueOrId) 
+        : venueOrId;
+      
+      if (!venue) return;
+      
+      selectedVenueId = venue.id;
+      document.getElementById('venueName').value = venue.name;
+      document.getElementById('venueCategory').value = venue.category;
+      document.getElementById('venueAddress').value = venue.address || '';
+      
+      // Center map on venue
+      map.setView([venue.latitude, venue.longitude], 16);
+      
+      // If venue has boundary, show it
+      if (venue.boundary) {
+        drawnItems.clearLayers();
+        const coords = venue.boundary.coordinates.map(c => [c[1], c[0]]);
+        currentPolygon = L.polygon(coords, {
+          color: '#10B981',
+          fillColor: '#10B981',
+          fillOpacity: 0.3
+        });
+        drawnItems.addLayer(currentPolygon);
+        currentBoundary = venue.boundary;
+        updateBoundaryPreview();
+        document.getElementById('saveBtn').disabled = false;
+        updateStatus('Editing: ' + venue.name, 'info');
+      } else {
+        updateStatus('Draw a boundary for: ' + venue.name, 'warning');
+      }
+    }
+    
+    // Make selectVenue global
+    window.selectVenue = selectVenue;
+    
+    // Save boundary
+    async function saveBoundary() {
+      const name = document.getElementById('venueName').value.trim();
+      const category = document.getElementById('venueCategory').value;
+      const address = document.getElementById('venueAddress').value.trim();
+      
+      if (!name) {
+        updateStatus('Please enter a venue name', 'error');
+        return;
+      }
+      
+      if (!currentBoundary) {
+        updateStatus('Please draw a boundary first', 'error');
+        return;
+      }
+      
+      // Calculate center point from polygon
+      const coords = currentBoundary.coordinates;
+      const lats = coords.map(c => c[1]);
+      const lngs = coords.map(c => c[0]);
+      const centerLat = lats.reduce((a, b) => a + b, 0) / lats.length;
+      const centerLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
+      
+      const venueData = {
+        name: name,
+        category: category,
+        address: address,
+        latitude: centerLat,
+        longitude: centerLng,
+        boundary: currentBoundary
+      };
+      
+      updateStatus('Saving...', 'info');
+      
+      // For now, log to console (API endpoint needed)
+      console.log('Venue data to save:', venueData);
+      
+      // Show success with the data
+      updateStatus('Boundary ready! Check console for data.', 'success');
+      
+      // Copy to clipboard
+      const jsonStr = JSON.stringify(venueData, null, 2);
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        updateStatus('Boundary copied to clipboard!', 'success');
+      }).catch(() => {
+        updateStatus('Boundary ready - check console', 'success');
+      });
+    }
+    
+    // Clear drawing
+    function clearDrawing() {
+      drawnItems.clearLayers();
+      currentPolygon = null;
+      currentBoundary = null;
+      selectedVenueId = null;
+      document.getElementById('venueName').value = '';
+      document.getElementById('venueAddress').value = '';
+      updateBoundaryPreview();
+      document.getElementById('saveBtn').disabled = true;
+      updateStatus('Cleared. Draw a new boundary.', 'info');
+    }
+    
+    // Event listeners
+    document.getElementById('saveBtn').addEventListener('click', saveBoundary);
+    document.getElementById('clearBtn').addEventListener('click', clearDrawing);
+    
+    // Initialize
+    window.onload = function() {
+      initMap();
+      loadVenues();
+    };
+  </script>
+</body>
+</html>
