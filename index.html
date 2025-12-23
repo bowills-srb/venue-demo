@@ -120,7 +120,7 @@
       width: 100%;
       height: 100%;
       min-height: 500px;
-      background: #1a1a1a;
+      background: #e8e8e8;
     }
     
     .sidebar {
@@ -235,7 +235,7 @@
       font-size: 13px;
     }
     
-    .privacy-badge span {
+    .privacy-badge .icon {
       color: #10B981;
       font-size: 24px;
     }
@@ -421,7 +421,7 @@
       padding: 20px;
     }
 
-    .form-success .icon {
+    .form-success .success-icon {
       font-size: 48px;
       margin-bottom: 16px;
     }
@@ -469,7 +469,7 @@
       border-bottom: none;
     }
 
-    .about-features .icon {
+    .about-features .feature-icon {
       font-size: 20px;
     }
 
@@ -489,7 +489,7 @@
   <!-- Navigation -->
   <nav class="navbar">
     <a href="#" class="nav-brand">
-      🏖️ Venue Demographics
+      Venue Demographics
       <span>30A</span>
     </a>
     <div class="nav-links">
@@ -509,7 +509,7 @@
     <div class="sidebar">
       <div class="section">
         <div class="privacy-badge">
-          <span>🔒</span>
+          <div class="icon">🔒</div>
           <div>
             <strong>Privacy Mode Active</strong><br>
             <small>K-anonymity: 10+ visitors required</small>
@@ -518,7 +518,7 @@
       </div>
       
       <div class="section">
-        <h2>📊 Stats</h2>
+        <h2>Stats</h2>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-value" id="venueCount">-</div>
@@ -532,7 +532,7 @@
       </div>
       
       <div class="section">
-        <h2>📍 Nearby Venues</h2>
+        <h2>Nearby Venues</h2>
         <div id="venueList" class="venue-list">
           <div class="loading">Loading venues...</div>
         </div>
@@ -545,37 +545,37 @@
     <div class="modal">
       <div class="modal-header">
         <h2>About Venue Demographics</h2>
-        <button class="modal-close" onclick="closeModal('aboutModal')">&times;</button>
+        <button class="modal-close" onclick="closeModal('aboutModal')">×</button>
       </div>
       <div class="modal-body about-content">
         <p>Venue Demographics helps you discover the vibe at local bars, restaurants, and cafes — all while protecting everyone's privacy.</p>
         
         <ul class="about-features">
           <li>
-            <span class="icon">👥</span>
+            <span class="feature-icon">👥</span>
             <div>
               <strong>Real-time Crowd Insights</strong>
               <small>See age ranges and gender distribution at venues near you</small>
             </div>
           </li>
           <li>
-            <span class="icon">🔒</span>
+            <span class="feature-icon">🔒</span>
             <div>
               <strong>Privacy First</strong>
               <small>K-anonymity ensures no individual can be identified. Data only shows when 10+ visitors are present.</small>
             </div>
           </li>
           <li>
-            <span class="icon">📍</span>
+            <span class="feature-icon">📍</span>
             <div>
               <strong>Polygon Geofencing</strong>
               <small>Precise venue boundaries — not just a point on a map</small>
             </div>
           </li>
           <li>
-            <span class="icon">✅</span>
+            <span class="feature-icon">✅</span>
             <div>
-              <strong>GDPR & CCPA Compliant</strong>
+              <strong>GDPR and CCPA Compliant</strong>
               <small>Built from the ground up with privacy regulations in mind</small>
             </div>
           </li>
@@ -591,7 +591,7 @@
     <div class="modal">
       <div class="modal-header">
         <h2>Create Account</h2>
-        <button class="modal-close" onclick="closeModal('signupModal')">&times;</button>
+        <button class="modal-close" onclick="closeModal('signupModal')">×</button>
       </div>
       <div class="modal-body">
         <div id="signupForm">
@@ -637,8 +637,8 @@
         </div>
 
         <div id="signupSuccess" class="form-success" style="display: none;">
-          <div class="icon">✅</div>
-          <h3>You're all set!</h3>
+          <div class="success-icon">✅</div>
+          <h3>You are all set!</h3>
           <p>Check your email for a verification link to complete your signup.</p>
         </div>
       </div>
@@ -713,7 +713,9 @@
     
     function initMap() {
       map = L.map('map').setView(CENTER, 12);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      
+      // Lighter map style - CARTO Voyager
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap © CARTO',
         maxZoom: 19
       }).addTo(map);
@@ -749,7 +751,7 @@
           displayVenues(venues);
           
           document.getElementById('venueCount').textContent = venues.length;
-          const categories = [...new Set(venues.map(v => v.category))];
+          const categories = [...new Set(venues.map(function(v) { return v.category; }))];
           document.getElementById('categoryCount').textContent = categories.length;
         } else {
           document.getElementById('venueList').innerHTML = 
@@ -762,17 +764,17 @@
     }
     
     function displayVenues(venueList) {
-      markers.forEach(m => map.removeLayer(m));
+      markers.forEach(function(m) { map.removeLayer(m); });
       markers = [];
       
-      venueList.forEach((venue, index) => {
+      venueList.forEach(function(venue, index) {
         const color = categoryColors[venue.category] || '#6366F1';
         
         const icon = L.divIcon({
           className: 'custom-marker',
-          html: '<div style="background:' + color + ';width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
+          html: '<div style="background:' + color + ';width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         });
         
         const marker = L.marker([venue.latitude, venue.longitude], { icon: icon })
@@ -785,7 +787,7 @@
             '</div>'
           );
         
-        marker.on('click', () => selectVenue(index));
+        marker.on('click', function() { selectVenue(index); });
         markers.push(marker);
       });
       
@@ -796,17 +798,14 @@
       }
 
       let listHtml = '';
-      venueList.forEach((venue, index) => {
+      venueList.forEach(function(venue, index) {
         const distanceKm = (venue.distance / 1000).toFixed(1);
-        listHtml += `
-          <div class="venue-card" onclick="selectVenue(${index})" id="venue-${index}">
-            <div class="venue-name">${venue.name}</div>
-            <div class="venue-meta">
-              <span class="category-badge category-${venue.category}">${venue.category}</span>
-              <span>${distanceKm} km away</span>
-            </div>
-          </div>
-        `;
+        listHtml += '<div class="venue-card" onclick="selectVenue(' + index + ')" id="venue-' + index + '">' +
+          '<div class="venue-name">' + venue.name + '</div>' +
+          '<div class="venue-meta">' +
+          '<span class="category-badge category-' + venue.category + '">' + venue.category + '</span>' +
+          '<span>' + distanceKm + ' km away</span>' +
+          '</div></div>';
       });
       
       document.getElementById('venueList').innerHTML = listHtml;
@@ -818,7 +817,9 @@
     }
     
     function selectVenue(index) {
-      document.querySelectorAll('.venue-card').forEach(card => card.classList.remove('active'));
+      document.querySelectorAll('.venue-card').forEach(function(card) { 
+        card.classList.remove('active'); 
+      });
       document.getElementById('venue-' + index).classList.add('active');
       
       const venue = venues[index];
@@ -831,7 +832,7 @@
     // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+        document.querySelectorAll('.modal-overlay.active').forEach(function(modal) {
           modal.classList.remove('active');
         });
         document.body.style.overflow = '';
@@ -840,7 +841,7 @@
     
     window.onload = function() {
       initMap();
-      checkHealth().then(() => loadVenues());
+      checkHealth().then(function() { loadVenues(); });
     };
   </script>
 </body>
